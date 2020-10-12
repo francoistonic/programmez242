@@ -1,0 +1,388 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1671\cocoasubrtf600
+{\fonttbl\f0\fmodern\fcharset0 CourierNewPSMT;\f1\froman\fcharset0 TimesNewRomanPSMT;\f2\froman\fcharset0 TimesNewRomanPS-BoldMT;
+}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww10800\viewh8400\viewkind0
+\deftab708
+\pard\tx916\tx1832\tx2748\tx3664\tx4580\tx5496\tx6412\tx7328\tx8244\tx9160\tx10076\tx10992\tx11908\tx12824\tx13740\tx14656\pardeftab708\ri-340\partightenfactor0
+
+\f0\fs20 \cf0 //version: scala 2.13\
+//note: combinaison de listes\
+val combination = List(1,2,3) ++ List(2,1,3) \
+// res: List(1,2,3,2,1,3)\
+\
+//version: java 14\
+//note: un equivalent fonctionnel en java 14 utilisant des streams\
+Stream.of(List.of(1, 2, 3),List.of(2, 1, 3))\
+      .flatMap(Collection::stream)\
+			.collect(Collectors.toList())\
+// res: List(1,2,3,2,1,3)\
+\
+//version: scala 2.13\
+//note: autres exemples\
+val set = Set(1, 2, 3) + 4 \
+// res: Set(1, 2, 3, 4)\
+val map = (Map(1 -> "Hello", 2 -> ", ") + (3 -> "Scala")).values.mkString \
+// res: Hello, Scala\
+val sq = 1 +: Seq(2, 3) :+ 4 \
+// res: List(1, 2, 3, 4)\
+\pard\pardeftab708\ri-340\partightenfactor0
+
+\f1\fs24 \cf0 \
+\pard\tx916\tx1832\tx2748\tx3664\tx4580\tx5496\tx6412\tx7328\tx8244\tx9160\tx10076\tx10992\tx11908\tx12824\tx13740\tx14656\pardeftab708\ri-340\partightenfactor0
+
+\f0\fs20 \cf0 \
+\
+//version: scala 2.13\
+\
+trait ApproxUnion \{\
+  def |(that: Approx): Approx\
+  def asString(approx: Approx): String = s"$\{approx.x\}"\
+\}\
+\
+class Approx(val x: Double) extends ApproxUnion \{\
+  def +(that: Approx): Approx = new Approx(this.x + that.x)\
+  override def |(that: Approx): Approx = this + that\
+  def unary_~ = Math.floor(x)\
+  def unary_! = 0.0\
+  override def toString: String = asString(this)\
+\}\
+\
+object Approx \{\
+  def apply(x: Double): Approx = new Approx(x)\
+  def unapply(x: Doube): Some[Double] = Some(x)\
+\
+  def main(args: Array[String]): Unit = \{\
+    println(Approx(1.1) + Approx(3.1))   //res: 4.2\
+    println(~Approx(1.1) + ~Approx(3.1)) //res: 4.0\
+    println(~Approx(1.1) + !Approx(3.1)) //res: 1.0\
+    println(Approx(1.1) | Approx(3.1))   //res: 4.2\
+  \}\
+\}\
+\pard\pardeftab708\ri-340\partightenfactor0
+
+\f1\fs24 \cf0 \
+\pard\tx916\tx1832\tx2748\tx3664\tx4580\tx5496\tx6412\tx7328\tx8244\tx9160\tx10076\tx10992\tx11908\tx12824\tx13740\tx14656\pardeftab708\ri-340\partightenfactor0
+\cf0 \
+\
+\pard\tx916\tx1832\tx2748\tx3664\tx4580\tx5496\tx6412\tx7328\tx8244\tx9160\tx10076\tx10992\tx11908\tx12824\tx13740\tx14656\pardeftab708\ri-340\partightenfactor0
+
+\f0\fs20 \cf0 // version: scala 2.13\
+import scala.util.parsing.json._\
+\
+val pattern = "([a-zA-Z]+)".r    \
+val name = "Hello" \
+val id = "Scala"   \
+\
+// note: on \'e9tend AnyVal pour emp\'e9cher l'instanciation de JsonHelper au runtime \
+implicit class JsonHelper(val sc: StringContext) extends AnyVal \{\
+  def json(args: Any*): JSONObject = \{\
+    val keys: Seq[String] = pattern.findAllIn(sc.parts.mkString("")).toList\
+    val values: Seq[Any] = args.toList\
+    JSONObject((keys zip values).toMap)\
+  \}\
+\}\
+\
+json"\{ name: $name, id: $id \}"\
+//res: JSONObject = \{"name" : "Hello", "id" : "Scala"\}\
+\pard\tx916\tx1832\tx2748\tx3664\tx4580\tx5496\tx6412\tx7328\tx8244\tx9160\tx10076\tx10992\tx11908\tx12824\tx13740\tx14656\pardeftab708\ri-340\partightenfactor0
+
+\f1\fs24 \cf0 \
+\
+\
+\pard\tx916\tx1832\tx2748\tx3664\tx4580\tx5496\tx6412\tx7328\tx8244\tx9160\tx10076\tx10992\tx11908\tx12824\tx13740\tx14656\pardeftab708\ri-340\partightenfactor0
+
+\f0\fs20 \cf0 //version: scala 2.13  \
+val result = objet match \{\
+	case x: Int => x\
+	case s: String => s.toInt\
+	case _: BigInt => Int.MaxValue //un objet de type BigInt\
+	case _ => 0 //un objet autre que Int, String ou BigInt\
+\}\
+\
+//version: Java 14\
+var result = -1;\
+if(objet instanceof Integer entier) \{\
+    result = entier;\
+\}else if (objet instanceof  String s) \{\
+    result = Integer.parseInt(s);\
+\}else if (objet instanceof BigInteger b)\{\
+    result = Integer.MAX_VALUE;\
+\}else \{\
+    result = 0;\
+\}\
+\pard\tx916\tx1832\tx2748\tx3664\tx4580\tx5496\tx6412\tx7328\tx8244\tx9160\tx10076\tx10992\tx11908\tx12824\tx13740\tx14656\pardeftab708\ri-340\partightenfactor0
+
+\f1\fs24 \cf0 \
+\
+\pard\tx916\tx1832\tx2748\tx3664\tx4580\tx5496\tx6412\tx7328\tx8244\tx9160\tx10076\tx10992\tx11908\tx12824\tx13740\tx14656\pardeftab708\ri-340\partightenfactor0
+
+\f0\fs20 \cf0 //version: scala 2.13 \
+List("A",2,"B",5) match \{ \
+	case x :: Nil => s"$\{x\} - un seul \'e9l\'e9ment"\
+  case x :: tail => s"$\{x\} - 1er \'e9lement, $\{tail\} - reste de la liste"\
+  case _ => "liste vide"\
+\}\
+//res: A - 1er \'e9lement, List(2, B, 5) - reste de la liste\
+\
+//version: Java 14 \
+var list = List.of("A",2,"B",5);\
+var listInstrospection = "";\
+if(list instanceof List l && l.size() == 1)\{\
+    listInstrospection = String.format( "%s - un seul \'e9l\'e9ment", l.get(0));;\
+\}else if(list instanceof List l && l.size() > 1)\{\
+    listInstrospection = String.format( "%s - 1er \'e9l\'e9ment, %s - reste de la liste", l.get(1), l.stream().skip(1).collect(Collectors.toList()));\
+\}else \{\
+    listInstrospection = "liste vide"\
+\}\
+//res: A - 1er \'e9lement, [2, B, 5] - reste de la liste\
+\pard\tx916\tx1832\tx2748\tx3664\tx4580\tx5496\tx6412\tx7328\tx8244\tx9160\tx10076\tx10992\tx11908\tx12824\tx13740\tx14656\pardeftab708\ri-340\partightenfactor0
+
+\f1\fs24 \cf0 \
+\
+\
+\pard\tx916\tx1832\tx2748\tx3664\tx4580\tx5496\tx6412\tx7328\tx8244\tx9160\tx10076\tx10992\tx11908\tx12824\tx13740\tx14656\pardeftab708\ri-340\partightenfactor0
+
+\f0\fs20 \cf0 //version: scala 2.13.2\
+List(1,2,4).map(x => \{ if (x < 3) Math.pow(x,2) else x \}) \
+// res: List(1.0, 4.0, 4.0)\
+\
+//version: java 14\
+List.of(1, 2, 4).stream().map( x -> \{\
+                    if(x < 3) return Math.pow(x, 2);\
+                    else return x;\
+                \}).collect(Collectors.toList())\'a0;\
+// res: List(1.0, 4.0, 4.0)\
+\pard\tx916\tx1832\tx2748\tx3664\tx4580\tx5496\tx6412\tx7328\tx8244\tx9160\tx10076\tx10992\tx11908\tx12824\tx13740\tx14656\pardeftab708\ri-340\partightenfactor0
+
+\f1\fs24 \cf0 \
+\
+\pard\tx916\tx1832\tx2748\tx3664\tx4580\tx5496\tx6412\tx7328\tx8244\tx9160\tx10076\tx10992\tx11908\tx12824\tx13740\tx14656\pardeftab708\ri-340\partightenfactor0
+
+\f0\fs20 \cf0 //version: scala 2.13.2\
+val list = List(1,2,3,4,5)\
+def g(x:Int) = List(x-1, x, x+1)\
+\
+list.flatMap(g) \
+//res: List[Int] = List(0, 1, 2, 1, 2, 3, 2, 3, 4, 3, 4, 5, 4, 5, 6)\
+\
+//note: \'e9quivalent \'e0 \
+list.flatMap(x => g(x)) ou list.flatMap(_ => g(_))\
+//res: List[Int] = List(0, 1, 2, 1, 2, 3, 2, 3, 4, 3, 4, 5, 4, 5, 6)\
+\
+//note: ou encore\
+val transformWithGx = list.map(x => g(x))\
+//res: List[List[Int]] = List(List(0, 1, 2), List(1, 2, 3), List(2, 3, 4), List(3, 4, 5), List(4, 5, 6))\
+transformWithGx.flatten\
+//res: List[Int] = List(0, 1, 2, 1, 2, 3, 2, 3, 4, 3, 4, 5, 4, 5, 6)\
+\pard\tx916\tx1832\tx2748\tx3664\tx4580\tx5496\tx6412\tx7328\tx8244\tx9160\tx10076\tx10992\tx11908\tx12824\tx13740\tx14656\pardeftab708\ri-340\partightenfactor0
+
+\f1\fs24 \cf0 \
+\
+\
+\pard\tx916\tx1832\tx2748\tx3664\tx4580\tx5496\tx6412\tx7328\tx8244\tx9160\tx10076\tx10992\tx11908\tx12824\tx13740\tx14656\pardeftab708\ri-340\partightenfactor0
+
+\f0\fs20 \cf0 //version: scala 2.13.2\
+\
+val numbers = List(1, 2, 3, 4, 5)\
+numbers.fold(10)(_+_) // res: Int = 25\
+numbers.fold(0)(_+_)  // res: Int = 15\
+numbers.reduce(_+_)   // res: Int = 15\
+numbers.scan(0)(_+_)  // res: Int = List(0, 1, 3, 6, 10, 15)\
+numbers.scan(10)(_+_)  // res: Int = List(10, 11, 13, 16, 20, 25)\
+\
+\pard\tx916\tx1832\tx2748\tx3664\tx4580\tx5496\tx6412\tx7328\tx8244\tx9160\tx10076\tx10992\tx11908\tx12824\tx13740\tx14656\pardeftab708\li720\ri-340\partightenfactor0
+
+\f2\b\fs24 \cf0 \
+\pard\tx916\tx1832\tx2748\tx3664\tx4580\tx5496\tx6412\tx7328\tx8244\tx9160\tx10076\tx10992\tx11908\tx12824\tx13740\tx14656\pardeftab708\li720\ri-340\partightenfactor0
+
+\f1\b0 \cf0 \
+\pard\tx916\tx1832\tx2748\tx3664\tx4580\tx5496\tx6412\tx7328\tx8244\tx9160\tx10076\tx10992\tx11908\tx12824\tx13740\tx14656\pardeftab708\ri-340\partightenfactor0
+
+\f0\fs20 \cf0 //version: scala 2.13.2\
+\
+//1. Instruction 1\
+val zipped: List[(Int, String)] = List(1,2,3).zip(List("A","B","C","E")) // res: List[(Int, String)] = List((1,A), (2,B), (3,C))\
+\
+//2. Instruction 2: vous voulez une map ? :)\
+val zippedMap = zipped.toMap \
+//res: scala.collection.immutable.Map[Int,String] = Map(1 -> A, 2 -> B, 3 -> C)\
+\pard\tx916\tx1832\tx2748\tx3664\tx4580\tx5496\tx6412\tx7328\tx8244\tx9160\tx10076\tx10992\tx11908\tx12824\tx13740\tx14656\pardeftab708\ri-340\partightenfactor0
+
+\f1\fs24 \cf0 \
+\
+\pard\tx916\tx1832\tx2748\tx3664\tx4580\tx5496\tx6412\tx7328\tx8244\tx9160\tx10076\tx10992\tx11908\tx12824\tx13740\tx14656\pardeftab708\ri-340\partightenfactor0
+
+\f0\fs20 \cf0 //version: scala 2.13.2\
+\
+//note: 1. param\'e8tre implicite\
+def f(base: Int)(implicit by: Int) = (2 * by) / base\
+implicit val factor = 3\
+f(1) // res: Int = 6\
+f(2) // res: Int = 3\
+\
+//note: 2. fonction implicite\
+implicit def doubleToInt(c: Double): Int = c.toInt\
+val x: Int = 42.0  //rest: Int = 42\
+\pard\tx916\tx1832\tx2748\tx3664\tx4580\tx5496\tx6412\tx7328\tx8244\tx9160\tx10076\tx10992\tx11908\tx12824\tx13740\tx14656\pardeftab708\ri-340\partightenfactor0
+
+\f1\fs24 \cf0 \
+\
+\pard\tx916\tx1832\tx2748\tx3664\tx4580\tx5496\tx6412\tx7328\tx8244\tx9160\tx10076\tx10992\tx11908\tx12824\tx13740\tx14656\pardeftab708\ri-340\partightenfactor0
+
+\f0\fs20 \cf0 //version: scala 2.13.2\
+\
+def exemple1(implicit x: Int)                       // x est implicite\
+def exemple2(implicit x: Int, y: Int)               // x and y sont implicites\
+def exemple3(x: Int, implicit y: Int)               // erreur de compilation \
+def exemple4(x: Int)(implicit y: Int)               // seulement y est implicite\
+def exemple5(implicit x: Int)(y: Int)               // erreur de compilation \
+def exemple6(implicit x: Int)(implicit y: Int)      // erreur de compilation \
+\pard\tx916\tx1832\tx2748\tx3664\tx4580\tx5496\tx6412\tx7328\tx8244\tx9160\tx10076\tx10992\tx11908\tx12824\tx13740\tx14656\pardeftab708\ri-340\partightenfactor0
+
+\f2\b\fs24 \cf0 \
+\
+\pard\tx916\tx1832\tx2748\tx3664\tx4580\tx5496\tx6412\tx7328\tx8244\tx9160\tx10076\tx10992\tx11908\tx12824\tx13740\tx14656\pardeftab708\ri-340\partightenfactor0
+
+\f0\b0\fs20 \cf0 //version: scala 2.13.2\
+\
+//note: 1. for and yield, equivalent \'e0 map\
+for (x <- List(1,2,3)) yield x*2 \
+List(1,2,3).map( x => x*2 )\
+//res: List(2,4,6)\
+\
+//note: 2. combinaison de listes\
+for (x <- List(3, 1); y <- List(3, 4)) yield (x, y)\
+List(3, 1).flatMap(x => List(3, 4).map(y => (x, y)))\
+//res: List((3,3), (3,4), (1,3), (1,4))\
+\
+//note: 2. d\'e9senvelopper les optionnels\
+val maybeFruits = List(Some(("tomate", Some(1))))\
+\
+//note: 2.a utilisation de for-comprehension\
+val forLoop = for (\
+  maybeFruit <- maybeFruits; // maybeFruit est de type Option[String, Option[Int]]\
+  (fruit, maybePrice) <- maybeFruit; // fruit est de type String, maybePrice de type Option[Int]\
+  price <- maybePrice //price est de type Int\
+) yield (fruit, price) //on renvoit un Typle de type (String, Int)\
+// res: List((tomate,1))\
+\
+//note: 2.b utilisation des flapMaps\
+val flatMap = maybeFruits.flatMap\{ _.map\{\
+    case (fruit: String, maybePrice: Option[Int]) =>\
+      maybePrice.flatMap(price => Some(fruit, price))\
+  \}\
+\}.flatMap(x => x) // List((tomate,1))\
+// res: List((tomate,1))\
+\
+flatMap.equals(forLoop)\
+\pard\tx916\tx1832\tx2748\tx3664\tx4580\tx5496\tx6412\tx7328\tx8244\tx9160\tx10076\tx10992\tx11908\tx12824\tx13740\tx14656\pardeftab708\ri-340\partightenfactor0
+
+\f1\fs24 \cf0 \
+\
+\pard\tx916\tx1832\tx2748\tx3664\tx4580\tx5496\tx6412\tx7328\tx8244\tx9160\tx10076\tx10992\tx11908\tx12824\tx13740\tx14656\pardeftab708\ri-340\partightenfactor0
+
+\f0\fs20 \cf0 //version: scala 2.13.2\
+val immutable = List(1,2,3)\
+immutable = List(1) // erreur de compilation\
+\
+//version: java 14\
+final var immutableJ = List.of(1,2,3)\
+\pard\pardeftab708\ri-340\sb100\sa100\partightenfactor0
+
+\f1\fs24 \cf0 \
+\pard\tx916\tx1832\tx2748\tx3664\tx4580\tx5496\tx6412\tx7328\tx8244\tx9160\tx10076\tx10992\tx11908\tx12824\tx13740\tx14656\pardeftab708\ri-340\partightenfactor0
+
+\f0\fs20 \cf0 //version: scala 2.13.2\
+\
+import scala.collection.mutable.MutableList\
+//note\'a0: pas besoin d'import, scala.collection.immutable.List\
+//le package scala.collection.immutable est import\'e9 par d\'e9fault via scala._\
+//aussi scala.List est un alias \'e0 scala.collection.immutable.List   \
+\
+//1. ajouts de deux \'e9lements\
+val ml = mutable.MutableList(1,3)\
+ml += (6, 9)\
+ml \
+// res: MutableList(1, 3, 6, 9)\
+\
+//2. application de la m\'eame op\'e9ration \'e0 la collection immutable List\
+var iml = List("1","3")\
+iml += "4" \
+// res: List("1", "3")\
+\
+//3. Ajout de l'\'e9l\'e9ment en passant par la fonction L\
+var iml = List(1,3)\
+iml = iml :+ 5 \
+// res: List(1, 3, 5) \
+\pard\tx916\tx1832\tx2748\tx3664\tx4580\tx5496\tx6412\tx7328\tx8244\tx9160\tx10076\tx10992\tx11908\tx12824\tx13740\tx14656\pardeftab708\ri-340\partightenfactor0
+
+\f1\fs24 \cf0 \
+\
+\
+\pard\tx916\tx1832\tx2748\tx3664\tx4580\tx5496\tx6412\tx7328\tx8244\tx9160\tx10076\tx10992\tx11908\tx12824\tx13740\tx14656\pardeftab708\ri-340\partightenfactor0
+
+\f0\fs20 \cf0 //version: scala 2.13.2\
+\
+//note: fonction d'addition\
+def add(x: Int, y: Int) => x + y\
+\
+//note: version sans currying\
+def addF(x: Int) => (y: Int) => x + y\
+addF(1)(2) //res: 3\
+\
+//note: version currying\
+def addC(x: Int)(y: Int) => x + y\
+addC(1)(2) //res: 3\
+\
+//note: high-order function\
+def addS(x: Int)(f: Int => Int) => f(x)\
+addS(1)\{_ + 2\}\
+\pard\tx916\tx1832\tx2748\tx3664\tx4580\tx5496\tx6412\tx7328\tx8244\tx9160\tx10076\tx10992\tx11908\tx12824\tx13740\tx14656\pardeftab708\ri-340\partightenfactor0
+
+\f1\fs24 \cf0 \
+\
+\
+\pard\tx916\tx1832\tx2748\tx3664\tx4580\tx5496\tx6412\tx7328\tx8244\tx9160\tx10076\tx10992\tx11908\tx12824\tx13740\tx14656\pardeftab708\ri-340\partightenfactor0
+
+\f0\fs20 \cf0 //version: scala 2.13.2\
+class Pair[T,S](val first: T, val second: S) \
+new Pair(12, 4) \
+// res: Pair[Int,Int]\
+new Pair("toto", 4) \
+// res: Pair[String,Int]\
+\
+//version: java 14 \
+record PairRecord<T, R>(T t, R r) \{ \}\
+var pair = new PairRecord(1, "120"); \
+// res: PairRecord[t=1, r=120]\
+\pard\tx916\tx1832\tx2748\tx3664\tx4580\tx5496\tx6412\tx7328\tx8244\tx9160\tx10076\tx10992\tx11908\tx12824\tx13740\tx14656\pardeftab708\ri-340\partightenfactor0
+
+\f1\fs24 \cf0 \
+\
+\pard\tx916\tx1832\tx2748\tx3664\tx4580\tx5496\tx6412\tx7328\tx8244\tx9160\tx10076\tx10992\tx11908\tx12824\tx13740\tx14656\pardeftab708\ri-340\partightenfactor0
+
+\f0\fs20 \cf0 //version: scala 2.13.2\
+def middleOf[T](a: Array[T]) = a(a.length /2)\
+middleOf(Array(1, 2, "z", 4, "a")) \
+// res: z\
+\
+//note: on peut contraindre le type \'e0 l'appel\
+middleOf[Int](Array(1, 2, "z", 4, "a")) \
+// res: erreur de compilation\
+\pard\pardeftab708\ri-340\sb100\sa100\qj\partightenfactor0
+
+\f1\fs24 \cf0 \
+\
+\pard\tx916\tx1832\tx2748\tx3664\tx4580\tx5496\tx6412\tx7328\tx8244\tx9160\tx10076\tx10992\tx11908\tx12824\tx13740\tx14656\pardeftab708\ri-340\partightenfactor0
+
+\f0\fs20 \cf0 def middleOf[T <: Option[Int]](a: Array[T]): Int = a(a.length /2).getOrElse(-1)\
+val t = middleOf(Array(Some(1), Some(6), Some(3))) \
+//res: 6\
+val t = middleOf(Array(Some(1), None, Some(3)))    \
+//res: -1\
+\pard\pardeftab708\ri-340\partightenfactor0
+
+\f1\fs24 \cf0 \
+}

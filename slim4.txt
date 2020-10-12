@@ -1,0 +1,923 @@
+
+server {
+  listen [::]:80;
+  listen 80;
+  server_name my-slim-website.com;
+
+  index index.php;
+  error_log /somepath/error.log;
+  access_log /somepath/access.log;
+
+  root /somepath/www/public;
+
+  location / {
+    try_files $uri /index.php$is_args$args;
+  }
+
+  location ~ \.php {
+    try_files $uri =404;
+    fastcgi_split_path_info ^(.+\.php)(/.+)$;
+    include fastcgi_params;
+    fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+    fastcgi_param SCRIPT_NAME $fastcgi_script_name;
+    fastcgi_index index.php;
+    fastcgi_pass unix:/var/run/php/php7.3-fpm.sock;
+  }
+}
+
+
+
+$app->get('/', function (Request $request, Response $response): Response {
+  $response->getBody()->write('<h1>Hello World !</h1>');
+  return $response
+});
+
+$app->get('/hello/{name}', function (Request $request, Response $response, array $args): Response {
+  $name = $args['name'];
+  // $name = $request->getAttribute('name');
+  $response->getBody()->write('<h1>');
+  $response->getBody()->write('Hello ');
+  $response->getBody()->write($name);
+  $response->getBody()->write('</h1>');
+  return $response;
+});
+
+
+
+
+return function (App $app) {
+  $app->get('/', function (Request $request, Response $response): Response {
+    ...
+  })->setName('root');
+
+  $app->get('/hello/{name}', function (Request $request, Response $response, array $args): Response {
+    ...
+  })->setName('hello')
+};
+
+
+
+return function (App $app) {
+  $app->get('/', function (Request $request, Response $response): Response {
+    $response->getBody()->write('<h1>Hello World !</h1>');
+    return $response;
+  });
+
+  $app->get('/hello/{name}', function (Request $request, Response $response, array $args): Response {
+    $name = $args['name'];
+    // $name = $request->getAttribute('name');
+    $response->getBody()->write('<h1>');
+    $response->getBody()->write('Hello ');
+    $response->getBody()->write($name);
+    $response->getBody()->write('<h1>');
+    return $response;
+  });
+};
+
+
+return function (ContainerBuilder $containerBuilder) {
+  $settings = [
+    'displayErrorDetails' => true, // set to false in prod
+    'logErrors' => false,
+    'logErrorDetails' => false,
+  ];
+
+  $containerBuilder->addDefinitions([
+    'settings' => $settings,
+  ]);
+};
+
+
+// 4
+// Instantiate PHP-DI ContainerBuilder
+$containerBuilder = new ContainerBuilder();
+
+// Set up settings
+(require __DIR__ . '/../config/settings.php')($containerBuilder);
+
+// Build PHP-DI Container instance
+$container = $containerBuilder->build();
+AppFactory::setContainer($container);
+
+// Instantiate the app
+$app = AppFactory::create();
+
+
+return function (App $app) {
+  $container = $app->getContainer();
+
+  // Settings
+  $settings = $container->get('settings');
+
+  // Add Routing Middleware
+  $app->addRoutingMiddleware();
+
+  // Add Error Middleware
+  $displayErrorDetails = $settings['displayErrorDetails'];
+  $logErrors = $settings['logErrors'];
+  $logErrorDetails = $settings['logErrorDetails'];
+  $app->addErrorMiddleware($displayErrorDetails, $logErrors, $logErrorDetails);
+};
+
+
+
+return function (ContainerBuilder $containerBuilder) {
+  $settings = [
+    ...
+
+    // Logger
+    'logger' => [
+      'name' => 'my-slim-website',
+      'path' => '/somepath/app.log',
+      'level' => Logger::DEBUG,
+    ],
+  ];
+
+
+return function($app) {
+  $container = $app->getContainer();
+  $container->set(LoggerInterface::class, function($container) {
+    $settings = $container->get('settings');
+    $loggerSettings = $settings['logger'];
+    $name = $loggerSettings['name'];
+    $path = $loggerSettings['path'];
+    $level = $loggerSettings['level'];
+
+    $logger = new Logger($name);
+    $processor = new UidProcessor();
+    $logger->pushProcessor($processor);
+    $handler = new StreamHandler($path, $level);
+    $logger->pushHandler($handler);
+    return $logger;
+  });
+};
+
+
+
+class BeforeMiddleware {
+  
+  public function __invoke(Request $request, RequestHandler $handler): Response {
+    $response = $handler->handle($request);
+    $existingContent = (string) $response->getBody();
+
+    $response = new Response();
+    $response->getBody()->write('<div>BEFORE</div>' . $existingContent);
+
+    return $response;
+  }
+
+
+
+class BeforeMiddleware implements Middleware {
+
+  private $logger;
+
+  public function __construct(Logger $logger) {
+    $this->logger = $logger;
+  }
+
+  public function process(Request $request, RequestHandler $handler): Response {
+    $this->logger->info("Hi from the Before Middleware.");
+    ...
+
+
+return function (App $app) {
+  $app->get('/', function (Request $request, Response $response): Response {
+    ...
+  })->setName('root');
+
+  $app->get('/hello/{name}', function (Request $request, Response $response, array $args): Response {
+    ...
+  })->setName('hello')
+  ->add(AfterMiddleware::class);
+};
+
+
+class CorsMiddleware implements Middleware {
+
+  public function process(Request $request, RequestHandler $handler): Response {
+    $response = $handler->handle($request);
+    return $response
+        ->withHeader('Access-Control-Allow-Origin', 'http://my-slim-website.com')
+        ->withHeader('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type, Accept, Origin, Authorization')
+        ->withHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+        ->withHeader('Access-Control-Allow-Credentials', 'true');
+
+
+
+class InvokableAction {
+  public function __invoke(Request $request, Response $response, $args): Response {
+    $id = $args['id'];
+
+    $response->getBody()->write('<h1>');
+    $response->getBody()->write('Invoke !');
+    $response->getBody()->write($id);
+    $response->getBody()->write('</h1>');
+    
+    return $response;
+  }
+
+
+
+class CustomController {
+  public function getFoo(Request $request, Response $response, $args): Response {
+    $id = $args['id'];
+
+    $response->getBody()->write('<h1>');
+    $response->getBody()->write('Custom !');
+    $response->getBody()->write($id);
+    $response->getBody()->write('</h1>');
+    return $response;
+  }
+
+  public function postFoo(Request $request, Response $response, $args): Response {
+    $postParams = $request->getParsedBody();
+    $firstname = $postParams['firstname'];
+
+    $response->getBody()->write('<h1>');
+    $response->getBody()->write('Custom !');
+    $response->getBody()->write($firstname);
+    $response->getBody()->write('</h1>');
+    
+    return $response;
+  }
+
+
+
+return function (ContainerBuilder $containerBuilder) {
+  $settings = [
+    ...
+
+    'twig' => [
+      'path' => dirname(__DIR__) . '/views',
+      'cache' => false // '/somepath/tmp/cache',
+    ],
+  ];
+
+
+
+return function($app) {
+  $container = $app->getContainer();
+
+  $container->set('view', function($container) {
+  
+    $settings = $container->get('settings');
+    $twigSettings = $settings['twig'];
+    $root = dirname(__DIR__);
+    return  Twig::create($twigSettings['path'], [
+      'cache' => $twigSettings['cache']
+    ]);
+  });
+  
+  $container->set(Twig::class, function($container) {
+    return $container->get('view');
+  });
+};
+
+
+class HelloController {
+  private $twig;
+
+  public function __construct(Twig $twig) {
+    $this->twig = $twig;
+  }
+
+
+
+class HelloController {
+  ...
+
+  public function hello(Request $request, Response $response, $args): Response {
+    $name = $request->getAttribute('name');
+
+    $params = [
+      'name' => $name,
+    ];
+
+    return $this->twig->render($response, 'hello.twig', $params);
+  }
+
+
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="...">
+    <title>My Slim Website</title>
+    <link rel="stylesheet" href="https://.../bootstrap.min.css" ...>
+  </head>
+
+  <body>
+    {% include "menu.twig" %}
+
+    <div class="container-fluid">
+      {% block content %}{% endblock %}
+    </div>
+
+    <script src="https://.../jquery.min.js" ...></script>
+    <script src="https://.../popper.min.js" ...></script>
+    <script src="https://.../bootstrap.min.js" ...></script>
+  </body>
+</html>
+
+
+
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <a class="navbar-brand" href="#">My slim website</a>
+  <button class="navbar-toggler" type="button" ...>
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+    <div class="navbar-nav">
+      <a class="nav-item nav-link" href="/">Home <span class="sr-only"></span></a>
+      <a class="nav-item nav-link" href="/hello/Lucie">Hello Lucie</a>
+      <a class="nav-item nav-link" href="/hello/Thierry">Hello Thierry</a>
+    </div>
+  </div>
+</nav>
+
+
+
+class Responder {
+   private $twig;
+   private $responseFactory;
+
+   public function __construct(Twig $twig, ResponseFactoryInterface $responseFactory) {
+     $this->twig = $twig;
+     $this->responseFactory = $responseFactory;
+   }
+
+  public function render(Response $response, string $template, array $params = [], int $httpStatusCode = 200): Response {
+    $params2 = array_merge($params, [
+      'httpStatusCode' => $httpStatusCode,
+    ]);
+    // PHP 7.4: $params2 = [ ...$params, 'foo' => 'lorem' ]
+
+    return $this->twig->render(
+        $response->withHeader('Content-Type', 'text/html; charset=utf-8')->withStatus($httpStatusCode),
+        $template,
+        $params2);
+  }
+
+
+
+return function($app) {
+  $container = $app->getContainer();
+  ...
+
+  $container->set(ResponseFactoryInterface::class, function($container) use ($app) {
+    return $app->getResponseFactory();
+  });
+};
+
+
+class MyErrorHandler {
+
+  private $responder;
+  private $logger;
+
+  public function __construct(Responder $responder, Logger $logger) {
+    $this->responder = $responder;
+    $this->logger = $logger;
+  }
+
+  public function __invoke(Request $request, Throwable $exception, bool $displayErrorDetails, bool $logErrors): Response {
+
+    $path = $request->getUri()->getPath();
+
+    // Log error
+    if ($logErrors) {
+      $this->logger->error(sprintf(
+        'Error: [%s] %s, Method: %s, Path: %s',
+        $exception->getCode(),
+        $exception->getMessage(),
+        $request->getMethod(),
+        $path
+      ));
+    }
+
+    // Detect status code
+    $httpStatusCode = $this->getHttpStatusCode($exception);
+
+    // Error message
+    $genericErrorMessage = $this->getErrorMessage($exception, $httpStatusCode, $displayErrorDetails);
+
+    $response = $this->responder->createResponse();
+    return $this->responder->render(
+        $response, 
+        '/http_error.twig', 
+        ['httpStatusCode' => $httpStatusCode, 'genericErrorMessage' => $genericErrorMessage],
+        $httpStatusCode);
+  }
+
+
+
+class Responder {
+   ...
+
+   public function createResponse(): Response {
+    return $this->responseFactory->createResponse()->withHeader('Content-Type', 'text/html; charset=utf-8');
+  }
+
+
+
+{% extends 'template.twig' %}
+
+{% block content %}
+  <style>
+    .http-error .status-code {
+      font-size: 7em;
+      color: red;
+    }
+  </style>
+
+  <div class="http-error">
+    <h1>Error...</h1>
+    <div class="status-code">{{ httpStatusCode }}</div>
+    <div class="message">{{ genericErrorMessage }}</div>
+  </div>
+{% endblock %}
+
+
+
+return function (ContainerBuilder $containerBuilder) {
+  $settings = [
+    ...
+
+    'db' => [
+      'user' => 'mylogin',
+      'password' => 'mypwd',
+      'host' => 'localhost',
+      'name' => 'my_slim_website_db',
+    ],
+  ];
+
+
+return function($app) {
+  $container = $app->getContainer();
+
+  $container->set(PDO::class, function($container): PDO {
+    $settings = $container->get('settings');
+    $databaseSettings = $settings['db'];
+    $dbUser = $databaseSettings['user'];
+    $dbPass = $databaseSettings['password'];
+    $dbHost = $databaseSettings['host'];
+    $dbName = $databaseSettings['name'];
+
+    try {
+      $pdo = new PDO("mysql:host=$dbHost;dbname=$dbName", $dbUser, $dbPass);
+      $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+      return $pdo;
+    } catch (PDOException $e) {
+      print($e);
+      die();
+    }
+  });
+};
+
+
+class HelloAction {
+  private $responder;
+  private $pdo;
+
+  public function __construct(Responder $responder, PDO $pdo) {
+    $this->responder = $responder;
+    $this->pdo = $pdo;
+  }
+
+
+public function hello(Request $request, Response $response, $args): Response {
+
+  $query = 'SELECT id, firstname, lastname, birthday FROM user';
+  $stmt = $this->pdo->prepare($query);
+  $stmt->execute();
+  $users = $stmt->fetchAll(PDO::FETCH_OBJ);
+
+  $name = $request->getAttribute('name');
+
+  $params = [
+    'name' => $name,
+    'users' => $users
+  ];
+
+  return $this->responder->render($response, 'hello.twig', $params);
+}
+
+
+<div>
+  Users:
+  <ul>
+    {% for u in users %}
+      <li>{{ u.firstname }} - {{ u.lastname }} - {{ u.birthday }}</li>
+    {% endfor %}
+  </ul>
+</div>
+
+
+class LoginController {
+  private $responder;
+  private $pdo;
+
+  public function __construct(Responder $responder, PDO $pdo) {
+    $this->responder = $responder;
+    $this->pdo = $pdo;
+  }
+
+  public function getLogin(Request $request, Response $response, $args): Response {
+    $loginForm = new LoginForm();
+
+    $params = [
+      'form' => $loginForm,
+    ];
+
+    return $this->responder->render($response, 'login.twig', $params);
+  }
+
+
+
+{% block content %}
+  <h1>
+    Login
+  </h1>
+
+  <form method="post" action="{{ url_for('login-submit') }}">
+    <div>
+      <label>Login</label>
+      <input type="text" name="login" value="{{ form.login }}" />
+    </div>
+    <div>
+      <label>Password</label>
+      <input type="password" name="password" value="{{ form.password }}" />
+    </div>
+    <div>
+      <input type="submit" value="Login" />
+    </div>
+  </form>
+{% endblock %}
+
+
+
+class LoginForm {
+
+  public $login = '';
+  public $password = '';
+
+  public static function createForm(array $postParams = []):LoginForm {
+    $form = new LoginForm();
+    $form->login = $postParams['loginn'] ?? '';
+    $form->password = $postParams['password'] ?? '';
+    return $form;
+  }
+
+
+
+  public function validate():array {
+    $errors = [];
+
+    if(!v::notEmpty()->validate($this->login)) {
+      $errors[] = 'login';
+    }
+
+    if(!v::notEmpty()->validate($this->password)) {
+      $errors[] = 'password';
+    }
+
+    return $errors;
+  }
+
+
+  public function postLogin(Request $request, Response $response, $args): Response {
+    $loginForm = LoginForm::createForm((array)$request->getParsedBody());
+    $errors = $loginForm->validate();
+  
+    if($errors) {
+      ...
+    }
+
+
+
+public function postLogin(Request $request, Response $response, $args): Response {
+  ...
+
+  $query = 'SELECT * FROM user WHERE login = :login';
+  $stmt = $this->pdo->prepare($query);
+  $queryParams = [
+    'login' => $loginForm->login,
+  ];
+  $stmt->execute($queryParams);
+  $u = $stmt->fetch(PDO::FETCH_OBJ);
+
+  if($u == null) {
+    ...
+  }
+
+  if ($u->password !== $loginForm->password) {
+    ...
+  }
+
+  $_SESSION['user'] = $u;
+  return $this->responder->redirectToRoute($request, $response, 'root');
+}
+
+
+
+class Responder {
+  ...
+
+  public function redirectToRoute(Request $request, Response $response, string $routeName, array $routeParams = [], int $httpStatusCode = 302): Response {
+
+    $routeParser = RouteContext::fromRequest($request)->getRouteParser();
+    $url = $routeParser->urlFor($routeName, $routeParams);
+    return $response->withStatus($httpStatusCode)->withHeader('Location', $url);
+  }
+
+
+
+class FlashMiddleware implements Middleware {
+
+  public function process(Request $request, RequestHandler $handler): Response {
+    $flash = $_SESSION['flash'; // isset
+    unset($_SESSION['flash']);
+    return $handler->handle($request->withAttribute('flash', $flash));;
+  }
+}
+
+
+
+public function postLogin(Request $request, Response $response, $args): Response {
+  $loginForm = LoginForm::createForm($request);
+  $errors = $loginForm->validate();
+
+  if($errors) {
+    $_SESSION['flash'] = [
+      'errors' => $errors,
+      'form' => $loginForm,
+    ];
+    return $this->responder->redirectToRoute($request, $response, 'login');
+  }
+
+  ...
+
+  if($u == null || $u->password !== $loginForm->password) {
+    $_SESSION['flash'] = [
+      'errors' => ['Incorrect login and/or password'],
+      'form' => $loginForm,
+    ];
+    return $this->responder->redirectToRoute($request, $response, 'login');
+  }
+  ...
+
+
+
+
+public function getLogin(Request $request, Response $response, $args): Response {
+
+  $loginForm = null;
+  $errors = [];
+
+  $flash = $request->getAttribute('flash');
+  if($flash != null) {
+    $loginForm = $flash['form'];
+    $errors = $flash['errors'];
+  }
+
+  if($loginForm == null) {
+    $loginForm = new LoginForm();
+  }
+
+  $params = [
+    'form' => $loginForm,
+    'errors' => $errors,
+  ];
+
+  return $this->responder->render($response, 'login.twig', $params);
+
+
+{% if errors %}
+  <div>
+    Errors...
+    <ul>
+      {% for error in errors %}
+        <li>{{ error }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+{% endif %}
+
+
+
+class AuthMiddleware implements Middleware {
+
+  private $responder;
+
+  public function __construct(Responder $responder) {
+    $this->responder = $responder;
+  }
+
+  public function process(Request $request, RequestHandler $handler): Response {
+    $user = $_SESSION['user']; // isset
+    if($user == null) {
+      $_SESSION['flash'] = [
+        'errors' => ['UNAUTHORIZED 401'],
+      ];
+      
+      $response = $this->responder->createResponse();
+      return $this->responder->redirectToRoute($request, $response, 'login');
+    }
+
+    return $handler->handle($request);
+  }
+}
+
+
+
+
+$routeContext = RouteContext::fromRequest($request);
+$route = $routeContext->getRoute();
+$routeName = $route->getName();
+$routeArgs = $route->getArguments();
+
+$_SESSION['flash'] = [
+  'errors' => ['UNAUTHORIZED 401'],
+];
+$_SESSION['route'] = [
+  'name' => $routeName,
+  'args' => $routeArgs,
+];
+
+$response = $this->responder->createResponse();
+return $this->responder->redirectToRoute($request, $response, 'login');
+
+
+
+public function postLogin(Request $request, Response $response, $args): Response {
+  ...
+
+  $rName = 'root';
+  $rArgs = [];
+  
+  If(isset($_SESSION['route'])) {
+    $rName = $_SESSION['route']['name'];
+    $rArgs = $_SESSION['route']['args'];
+    unset($_SESSION['route']);
+  }
+
+  return $this->responder->redirectToRoute($request, $response, $rName, $rArgs);
+}
+
+
+
+
+$container->set(Guard::class, function () use ($responseFactory) {
+  return new Guard($responseFactory);
+});
+$app->add(Guard::class);
+
+
+
+class MyCsrfHandler {
+
+  private $responder;
+  private $logger;
+
+  public function __construct(Responder $responder, Logger $logger) {
+    $this->responder = $responder;
+    $this->logger = $logger;
+  }
+
+  public function __invoke(Request $request): Response {
+    $this->logger->error('Error: CSRF bla bla');
+
+    $httpStatusCode = 400;
+    $genericErrorMessage = 'CSRF lorem ipsum';
+
+    $response = $this->responder->createResponse();
+    return $this->responder->render(
+        $response, 
+        '/http_error.twig', 
+        ['httpStatusCode' => $httpStatusCode, 'genericErrorMessage' => $genericErrorMessage],
+        $httpStatusCode);
+
+
+
+public function getLogin(Request $request, Response $response, $args): Response {
+  ...
+
+  $csrfNameKey = $this->csrf->getTokenNameKey();
+  $csrfValueKey = $this->csrf->getTokenValueKey();
+  $csrfName = $this->csrf->getTokenName();
+  $csrfValue = $this->csrf->getTokenValue();
+
+  $csrfValues = [
+    'keys' => [
+      'name' => $csrfNameKey,
+      'value' => $csrfValueKey
+    ],
+    'name' => $csrfName,
+    'value' => $csrfValue,
+  ];
+
+  $params = [
+    'form' => $loginForm,
+    'errors' => $errors,
+    'csrf' => $csrfValues,
+  ];
+
+  ...
+
+
+$container->set(Guard::class, function () use ($responseFactory, $container) {
+  $prefix = 'csrf';
+  $storage = null;
+  $failureHandler = $container->get(MyCsrfHandler::class);
+  $persistentTokenMode = true;
+  return new Guard($responseFactory, $prefix, $storage, $failureHandler, 200, 16, $persistentTokenMode);
+});
+
+
+$settings = [
+  ...
+];
+
+return [
+  'settings' => $settings,
+
+  App::class => function (Container $container): App {
+    AppFactory::setContainer($container);
+    $app = AppFactory::create();
+    return $app;
+  },
+
+  LoggerInterface::class => function(Container $container): Logger {
+    ...
+    $logger = new Logger(...);
+    return $logger;
+  },
+
+  PDO::class => function(Container $container): PDO {
+    ...
+    $pdo = new PDO(...);
+    return $pdo;
+  },
+
+  'view' => function(Container $container) {
+    ...
+    return Twig::create(...);
+  },
+
+  Twig::class => function(Container $container) {
+    return $container->get('view');
+  },
+
+  ResponseFactoryInterface::class => function(Container $container): ResponseFactoryInterface {
+    $app = $container->get(App::class);
+    return $app->getResponseFactory();
+  },
+
+  Guard::class => function (Container $container): Guard {
+    $responseFactory = $container->get(ResponseFactoryInterface::class);
+    ...
+    return new Guard($responseFactory, ...);
+  },
+];
+
+
+$containerBuilder = new ContainerBuilder();
+$containerBuilder->addDefinitions(__DIR__ . '/../config/container.php');
+$container = $containerBuilder->build();
+
+$app = $container->get(App::class);
+
+// Middlewares
+(require __DIR__ . '/../config/middlewares.php')($app);
+
+// Routes
+(require __DIR__ . '/../config/routes.php')($app);
+
+// Run
+$app->run();
+
+
+
+{
+  "name": "My Slim Website",
+  "description": "Very simple example of a website using Slim 4.",
+  "require": {
+    "slim/slim": "4.*",
+    "slim/psr7": "^1.0",
+    "slim/twig-view": "^3.1",
+    "slim/csrf": "^1.0",
+    "php-di/php-di": "^6.1",
+    "monolog/monolog": "^2.0",
+    "respect/validation": "^2.0",
+    "egulias/email-validator": "^2.1"
+  },
+  "autoload": {
+    "psr-4": {
+      "App\\": "src/"
+    }
+  }
+}
+
+

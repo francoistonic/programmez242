@@ -1,0 +1,357 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1671\cocoasubrtf600
+{\fonttbl\f0\froman\fcharset0 TimesNewRomanPSMT;\f1\fmodern\fcharset0 CourierNewPSMT;\f2\fmodern\fcharset0 CourierNewPS-BoldMT;
+\f3\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;\red0\green0\blue0;\red129\green184\blue89;}
+{\*\expandedcolortbl;;\csgenericrgb\c0\c0\c0;\csgenericrgb\c50646\c72151\c34800;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww10800\viewh8400\viewkind0
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f0\fs18 \cf2 \
+	
+\f1 	<graphql.version>5.10.0</graphql.version>\
+		<kotlin.version>1.3.10</kotlin.version
+\f0\fs22 >
+\fs18 \
+
+\f1 \
+		<depende
+\f0 ncy
+\f1 >\
+		    <groupId>com.graphql-java-kickstart</groupId>\
+		    <artifactId>graphql-spring-boot-starter</artifactId>\
+		    <version>$\{graphql.version\}</version>\
+		</dependency>\
+		<!-- to embed GraphiQL tool -->\
+		<dependency>\
+		    <groupId>com.graphql-java-kickstart</groupId>\
+		    <artifactId>graphiql-spring-boot-starter</artifactId>\
+		    <version>$\{graphql.version\}</version>\
+		    <scope>runtime</scope>\
+		</dependency>\
+		<!-- to embed Altair tool -->\
+		<dependency>\
+		    <groupId>com.graphql-java-kickstart</groupId>\
+		    <artifactId>altair-spring-boot-starter</artifactId>\
+		    <version>$\{graphql.version\}</version>\
+		    <scope>runtime</scope>\
+		</dependency>\
+		<dependency>\
+		    <groupId>com.graphql-java-kickstart</groupId>\
+		    <artifactId>playground-spring-boot-starter</artifactId>\
+		    <version>$\{graphql.version\}</version>\
+		    <scope>runti
+\f0\fs22 me</
+\f1\fs18 scope>\
+		</dependency>\
+		\
+\
+graphql:\
+  servlet:\
+    map
+\f0\fs22 ping
+\fs18 :
+\f1  /graphql\
+    enabled: true\
+\
+\
+\
+\
+\
+type Film \{\
+    id: ID!\
+    titre: String\
+    titreFr: String\
+    duree: Int\
+    annee: Int\
+    synopsis: String\
+    type: FilmType\
+    voteMoyen
+\f0 n
+\f1 e: Float\
+    voteNombre: Int\
+    imdbId: String\
+    votes: [Vote]\
+    personnages: [Personnage]\
+    studio: Studio\
+    realisateurs: [Personne]\
+    s
+\f0 c
+\f1 enaristes: [Personne]\
+\}\
+\
+type Personnage \{\
+    id: ID!\
+    nom: String!\
+    hero: Boolean\
+    film: Film!\
+    acteurs: [Personne!]!\
+\}\
+\
+type Personne \{\
+    id: ID!\
+    nom: String!\
+    anneeNaissance: Int\
+    anneeDeces: Int\
+    imdbId: String\
+    personna
+\f0\fs22 g
+\fs18 e
+\f1 s: [Personnage]
+\f2\b \
+    fi
+\f1\b0 lmRealises: [Film]
+\f2\b \
+    filmScen
+\f1\b0 arises: [Film]\
+\}\
+\
+\
+type Qu
+\f0\fs22 e
+\f1\fs18 ry \{\
+\
+	filmById(id: ID!): Film\
+\
+	filmsByTitre
+\f2\b Fr(titreFr: String!)
+\f1\b0 : [Film]\
+\
+\}\
+\
+@Component\
+public class QueryResolver implements GraphQLQueryR
+\f2\b esolver 
+\f1\b0 \{\
+\
+	@Autowired\
+	private FilmRepository filmRepository;\
+\
+	public Opti
+\f2\b onal<Film> fil
+\f1\b0 mById(Long id) \{\
+		return filmRepository.findById(id);\
+	\}\
+\
+	public Li
+\f0\fs22 s
+\fs18 t<
+\f1 Film> filmsByTitreFr(String titreFr) \{\
+		
+\f0\fs22 r
+\fs18 et
+\f1 urn filmRepository.findByTitreFr(titreFr);\
+	\}\
+\
+\}\
+\
+\{\
+  filmById(id: 151
+\f0\fs22 85
+\fs18 08
+\f1 ) \{\
+    titre\
+  \}\
+\}\
+\
+\{\
+  "data": \{\
+    "filmById": \{\
+      "titre": "Angel Has Fallen"\
+  
+\f0\fs22 \cf3   
+\f1\fs18 \cf2 \}\
+  \}\
+\}\
+\
+\
+\{\
+  filmById(id: 1518508) \{\
+    titre\
+    titr
+\f2\b eFr
+\f1\b0 \
+  
+\f0   
+\f1 annee\
+    personnages \{\
+      nom\
+    \}\
+  \}\
+\}\
+\
+\
+@Component\
+public class FilmRes
+\f2\b olver imple
+\f1\b0 m
+\f2\b ents
+\f1\b0  GraphQL
+\f0 Res
+\f1 olver<Film> \{\
+	@Autowired\
+	private PersonnageRepository
+\f0  per
+\fs22 s
+\fs18 onn
+\f1 ageRepository;\
+\
+	public Set<Personnage> personnages(Film film) \{\
+		return personnageRepository.findByFilmId(film.getId());\
+	\}\
+\}\
+\
+\
+\{\
+  "data": \{\
+    "filmById": \{\
+      "titre": "Angel Has Fallen",\
+      "titreFr": "La chute du pr\'e9sident",\
+      "annee": 2019,\
+    
+\f0\fs22   
+\fs18 "p
+\f1 ersonnages": [\
+        \{\
+          "nom": "Allan Trumbull"\
+        \},\
+        \{\
+          "nom": "Mike Banning"\
+        \}\
+      ]\
+    \}\
+  \}\
+\}\
+\
+\
+\{\
+  filmsByTitreFr(titreFr: "Alice au pays des merveilles") \{\
+    id\
+    titre\
+    annee\
+    personnages \{\
+      nom\
+      acteurs
+\f0\fs22  
+\fs18 \{
+\f1 \
+        nom\
+        personnages \{\
+          nom\
+          film \{\
+            titre\
+            titreFr\
+            annee\
+          \}\
+        \}\
+      \}\
+    \}\
+  \}\
+\}\
+\
+\
+s
+\f0\fs22 el
+\f1\fs18 ect distinct f1\
+from Film f1\
+left join fetch f1.personnages p1\
+left join fetch p1.acteurs a\
+l
+\f0 e
+\f1 ft join fetch a.personnages p2\
+left join fetch p2.film f2\
+where\
+f1.titreFr = :titreFr\
+\
+\
+CALL graphql.idl('\
+type Film \{\
+    id: Long!\
+    titre: String\
+    titreFr: String\
+    duree: Int\
+    annee: Int\
+    synopsis: String\
+    type: Strin
+\f0 g
+\f1 \
+    voteMoyenne: Float\
+    voteNombre: Int\
+    imdbId: String\
+    votes:        [Vote]       @relation(name:"NOTE",direction:IN)\
+    studio:       Studio       @relation(name:"PRODUIT",direction:IN)\
+    personnages:
+\f0   [
+\f1 Personnage] @relation(name:"FIGURE_DANS",direction:IN)\
+    realisateurs: [Personne]   @relation(name:"REALISE",    direction:IN)\
+    scenaristes:  [Personne]   @relation(name:"SCENARISE",  d
+\f0 irec
+\f1 tion:IN)\
+\}\
+\
+type Personnage \{\
+    id: Long!\
+    nom: String!\
+    hero: Boolean\
+    
+\f0 f
+\f1 ilm: Film!           @relation(name:"FIGURE_DANS")\
+    acteurs: [Personne!]!
+\f0  
+\f1 @relation(name:"INTERPRETE",  direction:IN)\
+\}\
+\
+type 
+\f0 P
+\f1 ersonne \{\
+    id: Long!\
+    nom: String!\
+    anneeNaissance: Int\
+    anneeDeces: Int\
+    imdbId: String\
+    personnages: [Personnage] @relation(name:"INTERPRETE")\
+    filmRealises: [Film]      @relation(name:"REALISE")\
+    filmScenarises: [Film]    @r
+\f0\fs22 elat
+\f1\fs18 ion(name:"SCENARISE")\
+\}\
+\
+type Studio \{\
+    id: Long!\
+    nom: String!\
+    films: [Film] @relation(name:"PRODUIT")\
+\}\
+\
+type Vote \{\
+    id: Long!\
+    note: Int!\
+    critique: String\
+    film: Film! @relation(name:"NOTE")\
+\}\
+')\
+\
+\
+\
+\
+MATCH (`film`:`Film`)\
+WHERE `film`.`titreFr` = "Alice au pays des merveilles"\
+RETURN graphql.labels(`film`) AS `_labels`,\
+`film`.`id` AS `id`,\
+`film`.`titre` AS `titre`,\
+`film`.`annee` AS `annee`,\
+[ (`film`)<-[:`FIGURE_DANS`]-(`film_personnages`:`Personnage`)  \
+	| `film_personnages` \{`_labels` : graphql.labels(`film_personnages`), .`nom`, `acteurs` : [ \
+	(`film_personnages`)<-[:`INTERPRETE`]-(`film_personnages_acteurs`:`Personne`)  \
+	| `film_personnages_acteurs` \{`_labels` : graphql.labels(`film_personnages_acteurs`), .`nom`, `personnages` : [ \
+		(`film_personnages_acteurs`)-[:`INTERPRETE`]->(`film_personnages_acteurs_personnages`:`Personnage`)  \
+		| `film_personnages_acteurs_personnages` \{`_labels` : graphql.labels(`film_personnages_acteurs_personnages`), .`nom`, `film` : head([ \
+			(`film_personnages_acteurs_personnages`)-[:`F
+\f0\fs22 IG
+\f3\fs24 \cf0 URE_DANS`]->(`film_personnages_acteurs_personnages_film`:`Film`)  \
+			| `film_personnages_acteurs_personnages_film` \{`_labels` : graphql.labels(`film_personnages_acteurs_personnages_film`), .`titre`, .`titreFr`, .`annee`\}\
+			])\}\
+		]\}\
+	]\}\
+] AS `personnages`\
+\
+\
+}
